@@ -17,7 +17,8 @@ def text_to_speech():
         file_path = os.path.join(AUDIO_DIR, 'audio.mp3')
         tts.save(file_path)
         last_command = text  # Almacenar el último comando
-        return jsonify({'message': 'Audio file created successfully', 'audio_url': f'/audio.mp3'})
+        # Cambia esta línea para devolver la URL completa del archivo de audio
+        return jsonify({'message': 'Audio file created successfully', 'audio_url': f'https://speakto.onrender.com/audio.mp3'})
     return jsonify({'error': 'No text provided'}), 400
 
 @app.route('/get-latest-command', methods=['GET'])
