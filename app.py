@@ -1,27 +1,37 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from gtts import gTTS
 import os
 
 app = Flask(__name__)
 
+# Usar el directorio temporal de Render para almacenar el archivo de audio
 AUDIO_DIR = '/tmp'
+latest_command = {'text': ''}  # Inicialmente vacío
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     data = request.get_json()
     text = data.get('text', '')
     if text:
-        tts = gTTS(text=text, lang='es', tld='com.ar')
+        tts = gTTS(text=text, lang='es')
         file_path = os.path.join(AUDIO_DIR, 'audio.mp3')
         tts.save(file_path)
-        # Asegúrate de devolver la URL completa y válida
-        return jsonify({'message': 'Audio file created successfully', 'audio_url': f'https://speakto.onrender.com/audio.mp3'})
+        return jsonify({'message': 'Audio file created successfully', 'audio_url': '/audio.mp3'})
     return jsonify({'error': 'No text provided'}), 400
 
-@app.route('/audio.mp3')
-def get_audio():
-    # Asegúrate de que la ruta del archivo sea correcta
-    return send_from_directory(AUDIO_DIR, 'audio.mp3')
+@app.route('/get-latest-command', methods=['GET'])
+def get_latest_command():
+    return jsonify(latest_command)
+
+@app.route('/set-latest-command', methods=['POST'])
+def set_latest_command():
+    global latest_command
+    data = request.get_json()
+    text = data.get('text', '')
+    if text:
+        latest_command = {'text': text}
+        return jsonify({'message': 'Command updated successfully'})
+    return jsonify({'error': 'No text provided'}), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
