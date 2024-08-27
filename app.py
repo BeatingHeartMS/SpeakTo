@@ -8,20 +8,19 @@ app = Flask(__name__)
 AUDIO_DIR = '/tmp'
 AUDIO_FILE = 'audio.mp3'
 
-# Variable global para almacenar el último texto procesado
-last_processed_text = ""
+# Variable global para almacenar el último comando
+latest_command = ''
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
-    global last_processed_text
+    global latest_command
     data = request.get_json()
     text = data.get('text', '')
     if text:
-        if text != last_processed_text:  # Procesa solo si el texto es diferente
-            last_processed_text = text
-            tts = gTTS(text=text, lang='es')  # Usa el idioma deseado aquí
-            file_path = os.path.join(AUDIO_DIR, AUDIO_FILE)
-            tts.save(file_path)
+        latest_command = text  # Actualiza el último comando
+        tts = gTTS(text=text, lang='es')  # Usa el idioma deseado aquí
+        file_path = os.path.join(AUDIO_DIR, AUDIO_FILE)
+        tts.save(file_path)
         return jsonify({'message': 'Audio file created successfully', 'audio_url': f'/audio.mp3'})
     return jsonify({'error': 'No text provided'}), 400
 
@@ -31,9 +30,7 @@ def serve_audio():
 
 @app.route('/get-latest-command', methods=['GET'])
 def get_latest_command():
-    global last_processed_text
-    return jsonify({'text': last_processed_text})
+    return jsonify({'text': latest_command})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
