@@ -8,6 +8,9 @@ app = Flask(__name__)
 AUDIO_DIR = '/tmp'
 AUDIO_FILE = 'audio.mp3'
 
+# Almacena el texto más reciente para propósitos de demostración
+latest_command = 'Hola mundo'  # Puedes actualizar esto desde otro lugar según sea necesario
+
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     data = request.get_json()
@@ -22,6 +25,11 @@ def text_to_speech():
 @app.route('/audio.mp3')
 def serve_audio():
     return send_from_directory(AUDIO_DIR, AUDIO_FILE)
+
+@app.route('/get-latest-command', methods=['GET'])
+def get_latest_command():
+    # Devuelve el texto más reciente o el comando
+    return jsonify({'text': latest_command})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
