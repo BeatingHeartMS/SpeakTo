@@ -28,7 +28,7 @@ def text_to_speech():
     text = data.get('text', '')
     if text:
         latest_command = text  # Actualiza el último comando
-        tts = gTTS(text=text, lang='es')  # Usa el idioma deseado aquí
+        tts = gTTS(text=text, lang='es', tld='us')  # Usa el idioma deseado aquí
         file_path = os.path.join(AUDIO_DIR, AUDIO_FILE)
         tts.save(file_path)
         return jsonify({'message': 'Audio file created successfully', 'audio_url': f'/audio.mp3'})
