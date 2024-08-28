@@ -14,15 +14,16 @@ latest_command = ''
 def check_api_key(request):
     api_key = request.headers.get('X-API-KEY')
     if not api_key or api_key != API_KEY:
-        return False
-    return True
+        return jsonify({'error': 'Unauthorized'}), 401
+    return None
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     global latest_command
     # Verificar la API Key
-    if not check_api_key(request):
-        return jsonify({'error': 'Unauthorized'}), 401
+    api_key_response = check_api_key(request)
+    if api_key_response:
+        return api_key_response  # Retorna error si la API Key no es válida
     
     data = request.get_json()
     text = data.get('text', '')
@@ -37,17 +38,23 @@ def text_to_speech():
 @app.route('/audio.mp3')
 def serve_audio():
     # Verificar la API Key
-    api_key_check = check_api_key(request)
-    if api_key_check:
-        return api_key_check  # Retorna error si la API Key no es válida
+    api_key_response = check_api_key(request)
+    if api_key_response:
+        return api_key_response  # Retorna error si la API Key no es válida
 
-    return send_from_directory(AUDIO_DIR, AUDIO_FILE)
+    # Intentar servir el archivo de audio
+    try:
+        return send_from_directory(AUDIO_DIR, AUDIO_FILE)
+    except Exception as e:
+        app.logger.error(f"Error serving audio file: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 @app.route('/get-latest-command', methods=['GET'])
 def get_latest_command():
     # Verificar la API Key
-    if not check_api_key(request):
-        return jsonify({'error': 'Unauthorized'}), 401
+    api_key_response = check_api_key(request)
+    if api_key_response:
+        return api_key_response  # Retorna error si la API Key no es válida
 
     return jsonify({'text': latest_command})
 
