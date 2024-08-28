@@ -36,7 +36,7 @@ def text_to_speech():
 
 @app.route('/audio.mp3')
 def serve_audio():
-    # Intentar servir el archivo de audio sin verificar la API Key
+    # No verificar la API Key para el archivo de audio
     try:
         return send_from_directory(AUDIO_DIR, AUDIO_FILE)
     except Exception as e:
@@ -45,7 +45,7 @@ def serve_audio():
 
 @app.route('/get-latest-command', methods=['GET'])
 def get_latest_command():
-    # Verificar la API Key
+    # Verificar la API Key para obtener el último comando
     if not check_api_key(request):
         return jsonify({'error': 'Unauthorized'}), 401
 
