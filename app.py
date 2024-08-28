@@ -38,8 +38,9 @@ def text_to_speech():
 @app.route('/audio.mp3')
 def serve_audio():
     # Verificar la API Key
-    if not check_api_key(request):
-        return jsonify({'error': 'Unauthorized'}), 401
+    api_key_response = check_api_key(request)
+    if api_key_response:
+        return api_key_response  # Retorna error si la API Key no es válida
 
     # Intentar servir el archivo de audio
     try:
@@ -47,6 +48,7 @@ def serve_audio():
     except Exception as e:
         app.logger.error(f"Error serving audio file: {e}")
         return jsonify({'error': 'Internal Server Error'}), 500
+
 
 
 @app.route('/get-latest-command', methods=['GET'])
