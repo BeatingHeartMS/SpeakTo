@@ -1,15 +1,21 @@
+import os
 from flask import Flask, request, jsonify, send_from_directory
 from gtts import gTTS
-import os
 
 app = Flask(__name__)
 
-# Usar el directorio temporal de Render para almacenar el archivo de audio
+# Usar la API Key de las variables de entorno
+API_KEY = os.getenv('API_KEY')
+
 AUDIO_DIR = '/tmp'
 AUDIO_FILE = 'audio.mp3'
-
-# Variable global para almacenar el último comando
 latest_command = ''
+
+def check_api_key(request):
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key or api_key != API_KEY:
+        return jsonify({'error': 'Unauthorized'}), 401
+
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
