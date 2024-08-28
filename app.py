@@ -14,16 +14,15 @@ latest_command = ''
 def check_api_key(request):
     api_key = request.headers.get('X-API-KEY')
     if not api_key or api_key != API_KEY:
-        return jsonify({'error': 'Unauthorized'}), 401
-    return None
+        return False
+    return True
 
 @app.route('/text-to-speech', methods=['POST'])
 def text_to_speech():
     global latest_command
     # Verificar la API Key
-    api_key_response = check_api_key(request)
-    if api_key_response:
-        return api_key_response  # Retorna error si la API Key no es válida
+    if not check_api_key(request):
+        return jsonify({'error': 'Unauthorized'}), 401
     
     data = request.get_json()
     text = data.get('text', '')
@@ -47,9 +46,8 @@ def serve_audio():
 @app.route('/get-latest-command', methods=['GET'])
 def get_latest_command():
     # Verificar la API Key
-    api_key_response = check_api_key(request)
-    if api_key_response:
-        return api_key_response  # Retorna error si la API Key no es válida
+    if not check_api_key(request):
+        return jsonify({'error': 'Unauthorized'}), 401
 
     return jsonify({'text': latest_command})
 
