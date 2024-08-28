@@ -37,8 +37,9 @@ def text_to_speech():
 @app.route('/audio.mp3')
 def serve_audio():
     # Verificar la API Key
-    if not check_api_key(request):
-        return jsonify({'error': 'Unauthorized'}), 401
+    api_key_check = check_api_key(request)
+    if api_key_check:
+        return api_key_check  # Retorna error si la API Key no es válida
 
     return send_from_directory(AUDIO_DIR, AUDIO_FILE)
 
